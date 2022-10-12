@@ -1,5 +1,6 @@
 const express = require('express');
-const graphqlHTTP = require('express-graphql');
+//добавляем graphql для создания сервера
+const {graphqlHTTP} = require('express-graphql');
 
 const app = express();
 //указываем  порт
