@@ -5,10 +5,10 @@ const {GraphQLObjectType, GraphQLString, GraphQLSchema, GraphQLID, GraphQLInt}= 
 
 //фильмы
 const movies=[
-    {id:'1', name: 'Pulp Fiction', genre: 'Crime'},
-    {id:'2', name: '1984', genre: 'Sci-Fi'},
-    {id: 3, name: 'V for vendetta', genre: 'Sci-Fi-Triller'},
-    {id: 4, name: 'Snatch', genre: 'Crime-Comedy'},
+    {id:'1', name: 'Pulp Fiction', genre: 'Crime', directorId:'1',},
+    {id:'2', name: '1984', genre: 'Sci-Fi', directorId:'2',},
+    {id: 3, name: 'V for vendetta', genre: 'Sci-Fi-Triller', directorId:'3',},
+    {id: 4, name: 'Snatch', genre: 'Crime-Comedy', directorId:'4',},
 ];
 //режиссеры
 const directors=[
@@ -24,18 +24,42 @@ const MovieType = new GraphQLObjectType({
         id:{type:GraphQLID},
         name:{type:GraphQLString},
         genre:{type:GraphQLString},
+        director:{
+            type: DirectorType,
+            resolve(parent, args){
+                return directors.find(director=>director.id == parent.parent.directorId,);
+            }
+        }
     }),
 });
+/* query($id: ID){
+    movie(id:$id){
+      id
+      name
+    }
+} */
 
 const DirectorType = new GraphQLObjectType({
     name: 'Directors',
     fields: () => ({
-        _id: { type: GraphQLID },
+        id: { type: GraphQLID },
         name: { type: GraphQLString },
         age: { type: GraphQLInt },
-       
+       /*  movies: {
+            type: new GraphQLList(MovieType),
+            resolve(parent, args) {
+                return Movies.find({ directorName: parent.movieName })
+            },
+        }, */
     })
 });
+/* query($id: ID){
+    directors(id:$id){
+      id
+      name
+      age
+    }
+} */
 
 //создаем корневой запрос и описываем его
 const Query=new GraphQLObjectType({
@@ -45,15 +69,15 @@ const Query=new GraphQLObjectType({
         movie:{
             type:MovieType,
             args:{id:{type:GraphQLID}},
-            //какие данные буде возвращать
+            //какие данные будет возвращать
             resolve(parent,args){
                 return movies.find(movie=>movie.id == args.id);
             }
         },
         directors:{
             type:DirectorType,
-            args:{_id:{type:GraphQLID}},
-            //какие данные буде возвращать
+            args:{id:{type:GraphQLID}},
+            //какие данные будет возвращать
             resolve(parent,args){
                 return directors.find(director=>director.id == args.id);
             }
