@@ -49,6 +49,7 @@ const MovieType = new GraphQLObjectType({
         id:{type:GraphQLID},
         name:{type:GraphQLString},
         genre:{type:GraphQLString},
+        directorId:{type:GraphQLID},
         director:{
             type: DirectorType,
             resolve(parent, args){
@@ -69,6 +70,7 @@ const MovieType = new GraphQLObjectType({
       }
     }
 }
+
  
 */
 
@@ -94,14 +96,18 @@ const DirectorType = new GraphQLObjectType({
     })
 });
 /* query($id: ID){
-    directors(id:$id){
+    director(id:$id){
       id
       name
       age
+      movie{
+        name
+        genre
+      }
     }
 } */
 
-//создаем мутацию для добавления режиссера в нашу базу данных
+//создаем мутацию для добавления, удаления и обновления в нашей базе данных
 const Mutation=new GraphQLObjectType({
     name:'Mutation',
     fields:{
@@ -116,9 +122,74 @@ const Mutation=new GraphQLObjectType({
                     name:args.name,
                     age:args.age,
                 });
-                director.save();
+                return director.save();
             }
-        }
+        },
+        addMovie:{
+            type:MovieType,
+            args:{
+                name:{type:GraphQLString},
+                genre:{type:GraphQLString},
+                directorId:{type:GraphQLID},
+            },
+            resolve(parent,args){
+                const movie=new Movies({
+                    name:args.name,
+                    genre:args.genre,
+                    directorId:args.directorId,
+                });
+                return movie.save();
+            }
+        },
+        deleteDirector:{
+            type:DirectorType,
+            args:{
+                id:{type:GraphQLID},
+            },
+            resolve(parent,args){
+                return Directors.findByIdAndRemove(args.id);
+            }
+        },
+        deleteMovie:{
+            type:MovieType,
+            args:{
+                id:{type:GraphQLID},
+            },
+            resolve(parent,args){
+                return Movies.findByIdAndRemove(args.id);
+            }
+        },
+        updateDirector:{
+            type:DirectorType,
+            args:{
+                id:{type:GraphQLID},
+                name:{type:GraphQLString},
+                age:{type:GraphQLInt},
+            },
+            resolve(parent,args){
+                return Directors.findByIdAndUpdate(
+                    args.id,
+                    {$set:{name:args.name,age:args.age}},
+                    {new:true},
+                );
+            }
+        },
+        updateMovie:{
+            type:MovieType,
+            args:{
+                id:{type:GraphQLID},
+                name:{type:GraphQLString},
+                genre:{type:GraphQLString},
+                directorId:{type:GraphQLInt},
+            },
+            resolve(parent,args){
+                return Directors.findByIdAndUpdate(
+                    args.id,
+                    {$set:{name:args.name,genre:args.genre,directorId:args.directorId}},
+                    {new:true},
+                );
+            }
+        },
     }
 })
 /* mutation($name:String, $age:Int){
@@ -126,7 +197,25 @@ const Mutation=new GraphQLObjectType({
       name
       age
     }
-} */
+} 
+mutation($name:String, $genre:String,$directorId:ID){
+    addMovie(name:$name,genre:$genre,directorId:$directorId){
+      name
+      genre
+    	directorId
+    }
+}
+mutation($id:ID){
+    deleteDirector(id:$id){
+      name
+    }
+}
+mutation($id:ID){
+    deleteMovie(id:$id){
+      name
+    }
+}
+*/
 
 
 //создаем корневой запрос и описываем его
