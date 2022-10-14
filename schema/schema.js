@@ -81,7 +81,7 @@ const DirectorType = new GraphQLObjectType({
         movie: {
             type: new GraphQLList(MovieType),
             resolve(parent, args) {
-               // return movies.filter(movie=>movie.directorId == parent.id)
+               //return movies.filter(movie=>movie.directorId == parent.id)
                return Movies.find({directorId:parent.id});
             },
         }, 
@@ -101,6 +101,34 @@ const DirectorType = new GraphQLObjectType({
     }
 } */
 
+//создаем мутацию для добавления режиссера в нашу базу данных
+const Mutation=new GraphQLObjectType({
+    name:'Mutation',
+    fields:{
+        addDirector:{
+            type:DirectorType,
+            args:{
+                name:{type:GraphQLString},
+                age:{type:GraphQLInt},
+            },
+            resolve(parent,args){
+                const director=new Directors({
+                    name:args.name,
+                    age:args.age,
+                });
+                director.save();
+            }
+        }
+    }
+})
+/* mutation($name:String, $age:Int){
+    addDirector(name:$name,age:$age){
+      name
+      age
+    }
+} */
+
+
 //создаем корневой запрос и описываем его
 const Query=new GraphQLObjectType({
     name: 'Query',
@@ -111,7 +139,8 @@ const Query=new GraphQLObjectType({
             args:{id:{type:GraphQLID}},
             //какие данные будет возвращать
             resolve(parent,args){
-                return movies.find(movie=>movie.id == args.id);
+                //return movies.find(movie=>movie.id == args.id);
+                return Movies.findById(args.id);
             }
         },
         director:{
@@ -119,21 +148,24 @@ const Query=new GraphQLObjectType({
             args:{id:{type:GraphQLID}},
             //какие данные будет возвращать
             resolve(parent,args){
-                return directors.find(director=>director.id == args.id);
+                //return directors.find(director=>director.id == args.id);
+                return Directors.findById(args.id);
             }
         },
         //вывод всех фильмов
         movies: {
             type: new GraphQLList(MovieType),
             resolve(parent, args) {
-                return movies;
+                //return movies;
+                return Movies.find({});
             },
         }, 
         //вывод всех режиссеров
         directors:{
             type: new GraphQLList(DirectorType),
             resolve(parent, args){
-                return directors;
+                //return directors;
+                return Directors.find({});
             }
         }
     }
@@ -141,4 +173,5 @@ const Query=new GraphQLObjectType({
 
 module.exports=new GraphQLSchema({
     query:Query,
+    mutation:Mutation,
 });

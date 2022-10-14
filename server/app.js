@@ -4,8 +4,11 @@ const {graphqlHTTP} = require('express-graphql');
 
 const schema = require('../schema/schema');
 
+//подключение к mongodb
 const mongoose=require('mongoose');
-mongoose.connect('mongodb+srv://admin:hh9OjLA6P1mIGiq6@graphql-tutorial.hhpocja.mongodb.net/test',{useMongoClient:true});
+mongoose.connect('mongodb+srv://admin:hh9OjLA6P1mIGiq6@graphql-tutorial.hhpocja.mongodb.net/graphql-tutorial')
+  .then(()=>console.log('connect to DB OK'))
+  .catch((err)=>console.log('DB error', err))
 
 const app = express();
 //указываем  порт
@@ -16,10 +19,6 @@ app.use('/graphql', graphqlHTTP({
   graphiql:true,
 })); 
 
-//подключение к бд
-const dbConnection=mongoose.connection;
-dbConnection.on('error',err=>console.log(`Connection error: ${err}`));
-dbConnection.once('open',()=>console.log('Connected to DB!'));
 
 //запускаем прослушивание нашего порта
 app.listen(PORT, err => {
