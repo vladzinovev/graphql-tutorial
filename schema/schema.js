@@ -1,3 +1,5 @@
+//пароль hh9OjLA6P1mIGiq6
+
 const graphql = require('graphql');
 
 //1-описываем данные хранящиеся в базе, 2- спец сервис
@@ -14,6 +16,16 @@ const movies=[
     {id:'7', name: 'Inglourious Basterds', genre: 'Crime', directorId:'1',},
     {id:'8', name: 'Lock, Stock and Two Smoking Barrels', genre: 'Crime-Comedy', directorId:'4',},
 ];
+/* const movies=[
+    {id:'1', name: 'Pulp Fiction', genre: 'Crime', directorId:'1',},
+    {id:'2', name: '1984', genre: 'Sci-Fi', directorId:'2',},
+    {id:'3', name: 'V for vendetta', genre: 'Sci-Fi-Triller', directorId:'3',},
+    {id:'4', name: 'Snatch', genre: 'Crime-Comedy', directorId:'4',},
+    {id:'5', name: 'Reservoir Dogs', genre: 'Crime', directorId:'1',},
+    {id:'6', name: 'The Hateeful Eight', genre: 'Crime', directorId:'1',},
+    {id:'7', name: 'Inglourious Basterds', genre: 'Crime', directorId:'1',},
+    {id:'8', name: 'Lock, Stock and Two Smoking Barrels', genre: 'Crime-Comedy', directorId:'4',},
+]; */
 //режиссеры
 const directors=[
     {id:'1', name: 'Quentin Tarantino', age:55},
@@ -21,6 +33,12 @@ const directors=[
     {id:'3', name: 'James McTeique',  age:51},
     {id:'4', name: 'Guy Ritchie',  age:50},
 ];
+/* const directors=[
+    {"name": 'Quentin Tarantino', "age":55},
+    {"name": 'Michael Radford',  "age":72},
+    {"name": 'James McTeique',  "age":51},
+    {"name": 'Guy Ritchie',  "age":50},
+]; */
 
 const MovieType = new GraphQLObjectType({
     name: 'Movie',
@@ -56,7 +74,7 @@ const DirectorType = new GraphQLObjectType({
         id: { type: GraphQLID },
         name: { type: GraphQLString },
         age: { type: GraphQLInt },
-        movies: {
+        movie: {
             type: new GraphQLList(MovieType),
             resolve(parent, args) {
                 return movies.filter(movie=>movie.directorId == parent.id)
@@ -91,7 +109,7 @@ const Query=new GraphQLObjectType({
                 return movies.find(movie=>movie.id == args.id);
             }
         },
-        directors:{
+        director:{
             type:DirectorType,
             args:{id:{type:GraphQLID}},
             //какие данные будет возвращать
@@ -99,6 +117,20 @@ const Query=new GraphQLObjectType({
                 return directors.find(director=>director.id == args.id);
             }
         },
+        //вывод всех фильмов
+        movies: {
+            type: new GraphQLList(MovieType),
+            resolve(parent, args) {
+                return movies;
+            },
+        }, 
+        //вывод всех режиссеров
+        directors:{
+            type: new GraphQLList(DirectorType),
+            resolve(parent, args){
+                return directors;
+            }
+        }
     }
 })
 
